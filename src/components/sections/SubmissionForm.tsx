@@ -25,34 +25,47 @@ export const SubmissionForm = () => {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
-        // Construct mailto link
-        const subject = `New Campaign Request: ${data.brand || "Brand"}`;
-        const body = `
-Name: ${data.name}
-Email: ${data.email}
-Brand: ${data.brand}
-Website: ${data.website}
-Ad Type: ${data.adType || "Not specified"}
+        // Construct payload matching the Google Apps Script expectation
+        const payload = {
+            name: data.name,
+            email: data.email,
+            brand: data.brand,
+            website: data.website,
+            adType: data.adType,
+            productInfo: data.description, // Mapped from 'description' to 'productInfo'
+            assets: file ? `File attached: ${file.name}` : "No assets uploaded"
+        };
 
-Description:
-${data.description}
-        `.trim();
+        try {
+            await fetch(
+                "https://script.google.com/macros/s/AKfycbxaynrqHKxJdPk2HABL-qCPsjq3jdXfJlOtkev1cY18y8CMzs9d4XWNIwCaKyoWNnjGwQ/exec",
+                {
+                    method: "POST",
+                    // Use text/plain to avoid CORS preflight (OPTIONS) which GAS doesn't handle.
+                    // The script parses e.postData.contents so this works perfectly.
+                    headers: { "Content-Type": "text/plain" },
+                    body: JSON.stringify(payload),
+                    mode: "no-cors",
+                }
+            );
 
-        const mailtoLink = `mailto:aiugcads6@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-        // Open mail client
-        window.location.href = mailtoLink;
-
-        // Simulate success state for UI feedback
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        setIsSubmitting(false);
-        setIsSubmitted(true);
-
-        toast({
-            title: "Redirecting to Email...",
-            description: "Please send the pre-filled email to complete your request.",
-        });
+            // Since 'no-cors' mode is used, we can't read the response status, 
+            // so we assume success if no network error occurred.
+            setIsSubmitted(true);
+            toast({
+                title: "Request Submitted!",
+                description: "We've received your campaign request and will be in touch shortly.",
+            });
+        } catch (error) {
+            console.error("Submission error:", error);
+            toast({
+                title: "Submission Failed",
+                description: "There was an error sending your request. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
