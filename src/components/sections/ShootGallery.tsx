@@ -1,7 +1,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { ArrowRight, ImageIcon, Layers, Video } from "lucide-react";
 import productShowcase1 from "@/assets/product-showcase-1.webp";
 import productShowcase2 from "@/assets/product-showcase-2.webp";
@@ -35,13 +35,16 @@ const defaultShoots = [
 ];
 
 import { fetchExcelData, ProductShoot } from "@/lib/dataLoader";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export const ShootGallery = () => {
+import { useNavigate } from "react-router-dom";
+
+export const ShootGallery = ({ enableViewMore = false }: { enableViewMore?: boolean }) => {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-100px" });
     const [shoots, setShoots] = useState<any[]>(defaultShoots);
     const [activeTab, setActiveTab] = useState(defaultShoots[0].id);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const loadData = async () => {
@@ -172,7 +175,13 @@ export const ShootGallery = () => {
                     </AnimatePresence>
                 </div>
 
-
+                {enableViewMore && (
+                    <div className="mt-12 text-center">
+                        <Button size="lg" className="glow-blue px-8" onClick={() => navigate('/product-shoot')}>
+                            View Full Gallery <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                    </div>
+                )}
             </div>
         </section>
     );

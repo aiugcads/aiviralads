@@ -4,15 +4,22 @@ import { Footer } from "@/components/sections/Footer";
 import { ProductPhotoshoot } from "@/components/sections/ProductPhotoshoot";
 import { ShootGallery } from "@/components/sections/ShootGallery";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ProductShootPage = () => {
+    const navigate = useNavigate();
     return (
         <div className="min-h-screen bg-background">
             <Navbar />
 
             <main className="pt-20">
-                <div className="container mx-auto px-4 py-16 text-center">
+                <div className="container mx-auto px-4 pt-8">
+                    <Button variant="ghost" className="gap-2 mb-4" onClick={() => navigate('/')}>
+                        <ArrowLeft className="w-4 h-4" /> Back to Home
+                    </Button>
+                </div>
+                <div className="container mx-auto px-4 py-8 text-center">
                     <h1 className="text-4xl md:text-6xl font-bold mb-6">
                         Professional <span className="text-gradient">AI Product Photography</span>
                     </h1>

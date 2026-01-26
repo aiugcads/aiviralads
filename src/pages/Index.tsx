@@ -16,7 +16,6 @@ import { ExtraTips } from "@/components/sections/ExtraTips";
 import { Pricing } from "@/components/sections/Pricing";
 import { InfluencerShowcase } from "@/components/sections/InfluencerShowcase";
 import { InfluencerMarquee } from "@/components/sections/InfluencerMarquee";
-import { ProductPhotoshoot } from "@/components/sections/ProductPhotoshoot";
 import { ShootGallery } from "@/components/sections/ShootGallery";
 
 const Index = () => {
@@ -28,8 +27,7 @@ const Index = () => {
         <Hero />
         <InfluencerMarquee />
         <BeforeAfter />
-        <ProductPhotoshoot />
-        <ShootGallery />
+        <ShootGallery enableViewMore={true} />
         <HowItWorks />
         <Portfolio limit={5} />
         <InfluencerShowcase limit={8} />
