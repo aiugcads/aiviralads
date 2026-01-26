@@ -4,22 +4,36 @@ import { PhoneMockup } from "@/components/ui/phone-mockup";
 import { Button } from "@/components/ui/button";
 import { Play, ArrowRight, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
-// Import showcase images for posters
-import showcase1 from "@/assets/product-showcase-1.webp";
-import showcase2 from "@/assets/product-showcase-2.webp";
-import showcase3 from "@/assets/product-showcase-3.webp";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+// Import showcase images for posters
+import showcase1 from "@/assets/product-showcase-1.webp";
+import showcase2 from "@/assets/product-showcase-2.webp";
+import showcase3 from "@/assets/product-showcase-3.webp";
+import { fetchExcelData, PortfolioItem } from "@/lib/dataLoader";
+
+// Fallback items
+const defaultCarouselItems = [
+  {
+    video: "https://res.cloudinary.com/dnwui208j/video/upload/v1768640652/merged_video_1768584753_bakzq2.mp4",
+    poster: showcase1
+  },
+  {
+    video: "https://res.cloudinary.com/dnwui208j/video/upload/v1768732719/merged_kuvana_video_lk5fhc.mp4",
+    poster: showcase2
+  },
+  // ... other defaults
+];
 
 const typewriterTexts = [
-  "10x Faster Production",
-  "No Influencers Needed",
-  "90% Cost Reduction",
-  "Viral-Ready Content",
+  "Viral",
+  "Engaging",
+  "Authentic",
+  "High-Converting"
 ];
 
 export const Hero = () => {
@@ -28,29 +42,25 @@ export const Hero = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [carouselItems, setCarouselItems] = useState(defaultCarouselItems);
 
-  const carouselItems = [
-    {
-      video: "https://res.cloudinary.com/dnwui208j/video/upload/v1768640652/merged_video_1768584753_bakzq2.mp4",
-      poster: showcase1
-    },
-    {
-      video: "https://res.cloudinary.com/dnwui208j/video/upload/v1768732719/merged_kuvana_video_lk5fhc.mp4",
-      poster: showcase2
-    },
-    {
-      video: "https://res.cloudinary.com/dnwui208j/video/upload/v1768732714/merged_mamaerath_shampoo_video_lij1ma.mp4",
-      poster: showcase3
-    },
-    {
-      video: "https://res.cloudinary.com/dnwui208j/video/upload/v1768732703/merged_derme_serum_video_qtoixc.mp4",
-      poster: showcase1
-    },
-    {
-      video: "https://res.cloudinary.com/dnwui208j/video/upload/v1768732700/merged_tulshi_tea_video_hpn3sn.mp4",
-      poster: showcase2
-    }
-  ];
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await fetchExcelData();
+      if (data && data.portfolio.length > 0) {
+        // Filter for 9:16 videos only for phone mockup
+        const verticalVideos = data.portfolio.filter(item => item.aspectRatio === "9:16").map(item => ({
+          video: item.videoUrl,
+          poster: item.image
+        }));
+
+        if (verticalVideos.length > 0) {
+          setCarouselItems(verticalVideos);
+        }
+      }
+    };
+    loadData();
+  }, []);
 
   const handleVideoEnd = () => {
     setCurrentVideoIndex((prev) => (prev + 1) % carouselItems.length);

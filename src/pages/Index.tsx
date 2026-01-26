@@ -14,16 +14,25 @@ import { Footer } from "@/components/sections/Footer";
 import { Comparison } from "@/components/sections/Comparison";
 import { ExtraTips } from "@/components/sections/ExtraTips";
 import { Pricing } from "@/components/sections/Pricing";
+import { InfluencerShowcase } from "@/components/sections/InfluencerShowcase";
+import { InfluencerMarquee } from "@/components/sections/InfluencerMarquee";
+import { ProductPhotoshoot } from "@/components/sections/ProductPhotoshoot";
+import { ShootGallery } from "@/components/sections/ShootGallery";
 
 const Index = () => {
+  console.log("Index page rendering...");
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <main>
         <Hero />
+        <InfluencerMarquee />
         <BeforeAfter />
+        <ProductPhotoshoot />
+        <ShootGallery />
         <HowItWorks />
-        <Portfolio />
+        <Portfolio limit={5} />
+        <InfluencerShowcase limit={8} />
         <Stats />
         <Comparison />
         <section id="features">

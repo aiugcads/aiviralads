@@ -7,13 +7,13 @@ import { Check, Star } from "lucide-react";
 const plans = [
   {
     name: "Pay Per Video",
-    price: "₹2000",
+    price: "₹500",
     period: "/video",
     description: "Professional AI video ads with custom editing",
     features: [
       "Full Custom Editing",
       "2 Free Revisions Included",
-      "Additional Revisions: ₹100/change",
+      "Additional Revisions: ₹20/change",
       "High-Quality Export",
       "Platform Optimized (9:16)",
     ],

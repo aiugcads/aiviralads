@@ -8,7 +8,11 @@ import productShowcase1 from "@/assets/product-showcase-1.webp";
 import productShowcase2 from "@/assets/product-showcase-2.webp";
 import productShowcase3 from "@/assets/product-showcase-3.webp";
 
-const portfolioItems = [
+import { fetchExcelData, PortfolioItem } from "@/lib/dataLoader";
+import { useEffect } from "react";
+
+// Keep original items as fallback/initial state
+const defaultPortfolioItems = [
     // 9:16 Items (Vertical)
     {
         id: 1,
@@ -83,22 +87,39 @@ const portfolioItems = [
     }
 ];
 
-export const Portfolio = () => {
+import { useNavigate } from "react-router-dom";
+
+export const Portfolio = ({ limit }: { limit?: number }) => {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-100px" });
     const [activeItem, setActiveItem] = useState(0);
     const [activeAspectRatio, setActiveAspectRatio] = useState("9:16");
     const [activeCategory, setActiveCategory] = useState("All");
+    const [items, setItems] = useState<any[]>(defaultPortfolioItems);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const loadData = async () => {
+            const data = await fetchExcelData();
+            if (data && data.portfolio.length > 0) {
+                // Map the ID type if necessary or just use the any[] above
+                setItems(data.portfolio);
+            }
+        };
+        loadData();
+    }, []);
 
     const categories = ["All", "TikTok UGC", "Instagram Reel", "YouTube Short", "YouTube Ad"];
 
-    const filteredItems = portfolioItems.filter(item =>
+    const filteredItems = items.filter(item =>
         (activeCategory === "All" || item.type === activeCategory) &&
         item.aspectRatio === activeAspectRatio
     );
 
+    const displayItems = limit ? filteredItems.slice(0, limit) : filteredItems;
+
     // Reset active item index when filtering changes
-    if (activeItem >= filteredItems.length && filteredItems.length > 0) {
+    if (activeItem >= displayItems.length && displayItems.length > 0) {
         setActiveItem(0);
     }
 
@@ -122,7 +143,7 @@ export const Portfolio = () => {
 
                     {/* Controls */}
                     <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
-                        {/* Aspect Ratio Toggle */}
+                        {/* Aspect Ratio Toggle - Always Visible */}
                         <div className="flex items-center gap-2 p-1 rounded-lg bg-secondary/50 border border-border">
                             <button
                                 onClick={() => setActiveAspectRatio("9:16")}
@@ -144,21 +165,23 @@ export const Portfolio = () => {
                             </button>
                         </div>
 
-                        {/* Category Filter */}
-                        <div className="flex bg-secondary/30 rounded-full p-1 border border-white/10 overflow-x-auto max-w-full">
-                            {categories.map((cat) => (
-                                <button
-                                    key={cat}
-                                    onClick={() => setActiveCategory(cat)}
-                                    className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all ${activeCategory === cat
-                                        ? "bg-gradient-to-r from-neon-blue to-neon-purple text-white shadow-lg"
-                                        : "text-muted-foreground hover:text-white"
-                                        }`}
-                                >
-                                    {cat}
-                                </button>
-                            ))}
-                        </div>
+                        {/* Category Filter - Hide if limited */}
+                        {!limit && (
+                            <div className="flex bg-secondary/30 rounded-full p-1 border border-white/10 overflow-x-auto max-w-full">
+                                {categories.map((cat) => (
+                                    <button
+                                        key={cat}
+                                        onClick={() => setActiveCategory(cat)}
+                                        className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all ${activeCategory === cat
+                                            ? "bg-gradient-to-r from-neon-blue to-neon-purple text-white shadow-lg"
+                                            : "text-muted-foreground hover:text-white"
+                                            }`}
+                                    >
+                                        {cat}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </motion.div>
 
@@ -173,11 +196,11 @@ export const Portfolio = () => {
                         {/* Dynamic Aspect Ratio Container */}
                         <div className={`relative rounded-2xl overflow-hidden glow-blue bg-black mx-auto transition-all duration-500 ease-in-out ${activeAspectRatio === "9:16" ? "aspect-[9/16] max-w-sm" : "aspect-[16/9] w-full"
                             }`}>
-                            {filteredItems[activeItem] ? (
-                                filteredItems[activeItem].videoUrl ? (
+                            {displayItems[activeItem] ? (
+                                displayItems[activeItem].videoUrl ? (
                                     <video
-                                        key={filteredItems[activeItem].id + activeAspectRatio} // Force reload on ratio change if needed
-                                        src={filteredItems[activeItem].videoUrl}
+                                        key={displayItems[activeItem].id + activeAspectRatio} // Force reload on ratio change if needed
+                                        src={displayItems[activeItem].videoUrl}
                                         controls
                                         preload="metadata"
                                         className="w-full h-full object-cover"
@@ -187,12 +210,12 @@ export const Portfolio = () => {
                                 ) : (
                                     <>
                                         <motion.img
-                                            key={filteredItems[activeItem].id}
+                                            key={displayItems[activeItem].id}
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             transition={{ duration: 0.5 }}
-                                            src={filteredItems[activeItem].image}
-                                            alt={filteredItems[activeItem].client}
+                                            src={displayItems[activeItem].image}
+                                            alt={displayItems[activeItem].client}
                                             className="w-full h-full object-cover"
                                         />
                                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -219,7 +242,7 @@ export const Portfolio = () => {
                         transition={{ duration: 0.8, delay: 0.4 }}
                         className="space-y-4"
                     >
-                        {filteredItems.map((item, index) => (
+                        {displayItems.map((item, index) => (
                             <motion.button
                                 key={item.id}
                                 onClick={() => setActiveItem(index)}
@@ -253,17 +276,24 @@ export const Portfolio = () => {
                             </motion.button>
                         ))}
 
-                        {filteredItems.length === 0 && (
+                        {displayItems.length === 0 && (
                             <div className="text-center py-8 text-muted-foreground">
                                 No videos found in this category.
                             </div>
                         )}
 
                         <div className="pt-6">
-                            <Button size="lg" className="w-full glow-blue" onClick={() => document.getElementById('submission-form')?.scrollIntoView({ behavior: 'smooth' })}>
-                                Get Similar Results
-                                <ArrowRight className="w-4 h-4 ml-2" />
-                            </Button>
+                            {limit ? (
+                                <Button size="lg" className="w-full glow-blue" onClick={() => navigate("/portfolio")}>
+                                    View All Work
+                                    <ArrowRight className="w-4 h-4 ml-2" />
+                                </Button>
+                            ) : (
+                                <Button size="lg" className="w-full glow-blue" onClick={() => document.getElementById('submission-form')?.scrollIntoView({ behavior: 'smooth' })}>
+                                    Get Similar Results
+                                    <ArrowRight className="w-4 h-4 ml-2" />
+                                </Button>
+                            )}
                         </div>
                     </motion.div>
                 </div>
