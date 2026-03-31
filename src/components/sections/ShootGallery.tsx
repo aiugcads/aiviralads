@@ -153,11 +153,22 @@ export const ShootGallery = ({ enableViewMore = false }: { enableViewMore?: bool
                                             className="group relative rounded-xl overflow-hidden aspect-[4/3] bg-secondary"
                                         >
                                             <div className={`absolute inset-0 bg-gradient-to-br ${asset.color} mix-blend-overlay opacity-50 z-10`} />
-                                            <img
-                                                src={asset.img}
-                                                alt={asset.label}
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                            />
+                                            {asset.type === 'video' ? (
+                                                <video
+                                                    src={asset.img}
+                                                    autoPlay
+                                                    muted
+                                                    loop
+                                                    playsInline
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                />
+                                            ) : (
+                                                <img
+                                                    src={asset.img}
+                                                    alt={asset.label}
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                />
+                                            )}
 
                                             {/* Overlay content */}
                                             <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">

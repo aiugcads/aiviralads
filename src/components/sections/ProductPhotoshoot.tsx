@@ -1,7 +1,8 @@
 
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
+import { fetchExcelData, ProductShoot } from "@/lib/dataLoader";
 import { ArrowRight, Camera, Image as ImageIcon, MapPin, Video } from "lucide-react";
 import productShowcase1 from "@/assets/product-showcase-1.webp";
 import productShowcase2 from "@/assets/product-showcase-2.webp";
@@ -11,12 +12,35 @@ export const ProductPhotoshoot = () => {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-100px" });
 
-    const outputs = [
+    const [activeShoot, setActiveShoot] = useState<ProductShoot | null>(null);
+
+    useEffect(() => {
+        const loadData = async () => {
+            const data = await fetchExcelData();
+            if (data && data.productShoots && data.productShoots.length > 0) {
+                // Try to find Indimums first as requested, else default to first
+                const indimums = data.productShoots.find(s => s.label.toLowerCase().includes('indimum') || s.label.toLowerCase().includes('imdimum'));
+                setActiveShoot(indimums || data.productShoots[0]);
+            }
+        };
+        loadData();
+    }, []);
+
+    const outputs = activeShoot ? activeShoot.assets.slice(0, 4).map((asset, idx) => ({
+        type: asset.type,
+        icon: asset.type === 'video' ? <Video className="w-4 h-4" /> : <ImageIcon className="w-4 h-4" />,
+        label: asset.label || `Variation ${idx + 1}`,
+        img: asset.img,
+        color: asset.color
+    })) : [
         { type: "image", icon: <MapPin className="w-4 h-4" />, label: "Urban Setting", img: productShowcase2, color: "from-blue-500/20 to-purple-500/20" },
         { type: "image", icon: <ImageIcon className="w-4 h-4" />, label: "Studio Shot", img: productShowcase3, color: "from-amber-500/20 to-red-500/20" },
         { type: "video", icon: <Video className="w-4 h-4" />, label: "Lifestyle Video", img: productShowcase1, color: "from-green-500/20 to-emerald-500/20" },
         { type: "video", icon: <Video className="w-4 h-4" />, label: "360° View", img: productShowcase2, color: "from-pink-500/20 to-rose-500/20" },
     ];
+
+    const sourceImage = activeShoot ? activeShoot.sourceImg : productShowcase1;
+    const sourceLabel = activeShoot ? activeShoot.label : "Original Product";
 
     return (
         <section ref={ref} className="py-24 relative overflow-hidden bg-secondary/10" id="photoshoot">
@@ -53,12 +77,12 @@ export const ProductPhotoshoot = () => {
                             </div>
                             <div className="aspect-square rounded-xl overflow-hidden bg-secondary relative group">
                                 <img
-                                    src={productShowcase1}
+                                    src={sourceImage}
                                     alt="Source Product"
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <span className="text-white font-medium">Original Product</span>
+                                    <span className="text-white font-medium">{sourceLabel}</span>
                                 </div>
                             </div>
                         </div>
@@ -92,11 +116,22 @@ export const ProductPhotoshoot = () => {
                             >
                                 <div className="aspect-[4/5] rounded-lg overflow-hidden bg-secondary relative mb-3">
                                     <div className={`absolute inset-0 bg-gradient-to-br ${item.color} mix-blend-overlay opacity-60 z-10 transition-opacity group-hover:opacity-40`} />
-                                    <img
-                                        src={item.img}
-                                        alt={item.label}
-                                        className="w-full h-full object-cover"
-                                    />
+                                    {item.type === 'video' ? (
+                                        <video
+                                            src={item.img}
+                                            autoPlay
+                                            muted
+                                            loop
+                                            playsInline
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <img
+                                            src={item.img}
+                                            alt={item.label}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    )}
                                     {/* Badge */}
                                     <div className="absolute top-2 right-2 z-20 bg-black/60 backdrop-blur-sm p-1.5 rounded-full text-white">
                                         {item.icon}

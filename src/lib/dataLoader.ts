@@ -200,8 +200,18 @@ export const fetchExcelData = async () => {
                 for (let i = 1; i <= 5; i++) {
                     const url = row[`URL${i}`];
                     if (url) {
-                        // Simple heuristic for type, or default to image
-                        const isVideo = url.toLowerCase().endsWith('.mp4');
+                        // Specific Indimums check: URL3 and URL4 (indices 3 and 4) are videos
+                        const brandName = (row['Brand Name'] || "").toLowerCase();
+                        const isIndimums = brandName.includes('indimum') || brandName.includes('imdimum');
+
+                        let isVideo = url.toLowerCase().endsWith('.mp4') ||
+                            url.toLowerCase().endsWith('.webm') ||
+                            url.toLowerCase().includes('/video/');
+
+                        if (isIndimums && (i === 3 || i === 4)) {
+                            isVideo = true;
+                        }
+
                         assets.push({
                             type: isVideo ? 'video' : 'image',
                             label: `Variant ${i}`,

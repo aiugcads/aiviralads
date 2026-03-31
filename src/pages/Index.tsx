@@ -17,6 +17,7 @@ import { Pricing } from "@/components/sections/Pricing";
 import { InfluencerShowcase } from "@/components/sections/InfluencerShowcase";
 import { InfluencerMarquee } from "@/components/sections/InfluencerMarquee";
 import { ShootGallery } from "@/components/sections/ShootGallery";
+import { AdsGallery } from "@/components/sections/AdsGallery";
 
 const Index = () => {
   console.log("Index page rendering...");
@@ -28,6 +29,7 @@ const Index = () => {
         <InfluencerMarquee />
         <BeforeAfter />
         <ShootGallery enableViewMore={true} />
+        <AdsGallery limit={10} />
         <HowItWorks />
         <Portfolio limit={5} />
         <InfluencerShowcase limit={8} />

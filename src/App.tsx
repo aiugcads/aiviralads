@@ -12,6 +12,7 @@ const Index = lazy(() => import("./pages/Index"));
 const InfluencersPage = lazy(() => import("./pages/InfluencersPage"));
 const PortfolioPage = lazy(() => import("./pages/PortfolioPage"));
 const ProductShootPage = lazy(() => import("./pages/ProductShootPage"));
+const AdsPage = lazy(() => import("./pages/AdsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -76,6 +77,7 @@ const App = () => (
                 <Route path="/influencers" element={<InfluencersPage />} />
                 <Route path="/portfolio" element={<PortfolioPage />} />
                 <Route path="/product-shoot" element={<ProductShootPage />} />
+                <Route path="/sample-ads" element={<AdsPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
